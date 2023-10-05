@@ -17,7 +17,9 @@ https://github.com/lewark/gui.lua.git
 
 ### Debug Controller
 Receives transmitted messages from the drone's `debugProbe()` function. 
+
 run `debugger.lua`
+
 Primarily I use it to shut down specific drones while testing (press 'r' while it's running)
 
 
