@@ -130,7 +130,7 @@ function DroneProtocolPageTurret2:init(root,init_config)
 	function self.aimRadarButton.onPressed()
 		self.aimRadarButton:changeState()
 		self:setSettings(self.drone_type,"use_external_aim",self.aimRadarButton:getStateBoolean())
-		self:transmitToCurrentDrone("use_external_radar",{is_aim=true,mode=self:getSettings(self.drone_type).use_external_radar})
+		self:transmitToCurrentDrone("use_external_radar",{is_aim=true,mode=self:getSettings(self.drone_type).use_external_aim})
 		self:onLayout()
 	end
 	
