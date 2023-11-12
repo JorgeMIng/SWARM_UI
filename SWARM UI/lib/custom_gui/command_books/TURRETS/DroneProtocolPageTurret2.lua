@@ -10,6 +10,7 @@ local TextField = require "lib.gui.TextField"
 
 local DroneSettingsProfile = require "lib.custom_gui.DroneSettingsProfile"
 local BiStateButton = require "lib.custom_gui.BiStateButton"
+local MultiStateButton = require "lib.custom_gui.MultiStateButton"
 local DroneProtocolPage = require "lib.custom_gui.command_books.DEFAULT.DroneProtocolPage"
 
 local expect = require "cc.expect"
@@ -26,6 +27,9 @@ function DroneProtocolPageTurret2:pageSpecificAction(arguments)
 		end,
 		["get_override_bullet_range"] = function ()
 			return self:getBulletRangeOverrideDistance()
+		end,
+		["get_range_finding_mode"] = function ()
+			return self:getSettings(self.drone_type).range_finding_mode
 		end,
 		["force_refresh_page"] = function ()
 			self:refresh()
@@ -45,7 +49,9 @@ end
 function DroneProtocolPageTurret2:bulletRangeOverrideScroll(delta)
 	self.bulletRangeOverride:set(delta)
 	self:setSettings(self.drone_type,"bullet_range",self:getBulletRangeOverrideDistance())
-	self.gunRange.text = tostring(self:getSettings(self.drone_type).bullet_range)
+	--self.gunRange.text = tostring(self:getSettings(self.drone_type).bullet_range)
+	self.gunRangeButton.statesText[1] = tostring(self:getSettings(self.drone_type).bullet_range)
+	self.gunRangeButton:setState(self:getSettings(self.drone_type).range_finding_mode)
 	self:onLayout()
 end
 
@@ -117,15 +123,36 @@ function DroneProtocolPageTurret2:init(root,init_config)
 	self.orbitRadar:addChild(self.orbitRadarButton,true,false,Constants.LinearAlign.END)
 	
 	self.gunRangeLabel = Label(self,"RANGE:")
-	self.gunRange = Label(self,tostring(self:getSettings(self.drone_type).bullet_range))
+	--self.gunRange = Label(self,tostring(self:getSettings(self.drone_type).bullet_range))
+	self.gunRangeButton = MultiStateButton(root,{tostring(self:getSettings(self.drone_type).bullet_range),
+												"AUTO",
+												"AUTO-X"},
+											
+											{colors.white,
+											colors.black,
+											colors.white},
+											
+											{colors.blue,
+											colors.orange,
+											colors.green})
+
+	
 	self.gunRangeBox = LinearContainer(root,Constants.LinearAxis.HORIZONTAL,1,0)
 	self.gunRangeBox:addChild(self.gunRangeLabel,true,false,Constants.LinearAlign.START)
-	self.gunRangeBox:addChild(self.gunRange,true,false,Constants.LinearAlign.START)
+	--self.gunRangeBox:addChild(self.gunRange,true,false,Constants.LinearAlign.START)
+	self.gunRangeBox:addChild(self.gunRangeButton,true,false,Constants.LinearAlign.START)
 	
 	self:addChild(self.aimRadar,false,true,Constants.LinearAlign.CENTER)
 	self:addChild(self.orbitRadar,false,true,Constants.LinearAlign.CENTER)
 	self:addChild(self.formationBox,false,true,Constants.LinearAlign.CENTER)
 	self:addChild(self.gunRangeBox,false,true,Constants.LinearAlign.CENTER)
+	
+	function self.gunRangeButton.onPressed()
+		self.gunRangeButton:changeState()
+		self:setSettings(self.drone_type,"range_finding_mode",self.gunRangeButton:getStateIndex())
+		self:transmitToCurrentDrone("set_range_finding_mode",{mode=self:getSettings(self.drone_type).range_finding_mode})
+		self:onLayout()
+	end
 	
 	function self.aimRadarButton.onPressed()
 		self.aimRadarButton:changeState()
@@ -184,7 +211,8 @@ function DroneProtocolPageTurret2:init(root,init_config)
 		self.parenth1,
 		self.parenth2,
 		self.gunRangeLabel,
-		self.gunRange,
+		--self.gunRange,
+		self.gunRangeButton,
 	})
 	
 	root:onLayout()
@@ -213,7 +241,10 @@ end
 
 function DroneProtocolPageTurret2:refresh()
 	local page_settings = self:getSettings(self.drone_type)
-	self.gunRange.text = tostring(page_settings.bullet_range)
+	--self.gunRange.text = tostring(page_settings.bullet_range)
+	self.gunRangeButton.statesText[1] = tostring(page_settings.bullet_range)
+	self.gunRangeButton:setState(tonumber(page_settings.range_finding_mode))
+	
 	self.bulletRangeOverride:override(page_settings.bullet_range)
 	
 	self.aimRadarButton:setStateByBoolean(page_settings.use_external_aim)

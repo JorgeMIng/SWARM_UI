@@ -152,12 +152,15 @@ function remoteUI:scrollActionVertical(delta)
 	local selected_drone_type = self:getSelectedDroneType()
 	
 	if ( selected_drone_type == "TURRET") then
-		self:executePageSpecificAction(1,2,"override_bullet_range",{delta=delta})
-		local override_range = self:executePageSpecificAction(1,2,"get_override_bullet_range")
-		if (self:getSelectedDroneID() ~= "ALL") then
-			self:transmitToDroneType(self:getSelectedDroneID(),"override_bullet_range",override_range)
-		else
-			self:commandSwarm("override_bullet_range",override_range)	
+		local range_mode = self:executePageSpecificAction(1,2,"get_range_finding_mode")
+		if (range_mode==1) then
+			self:executePageSpecificAction(1,2,"override_bullet_range",{delta=delta})
+			local override_range = self:executePageSpecificAction(1,2,"get_override_bullet_range")
+			if (self:getSelectedDroneID() ~= "ALL") then
+				self:transmitToDroneType(self:getSelectedDroneID(),"override_bullet_range",override_range)
+			else
+				self:commandSwarm("override_bullet_range",override_range)	
+			end
 		end
 	elseif (selected_drone_type == "KITE") then
 		self:executePageSpecificAction(2,1,"override_rope_length",{delta=delta})

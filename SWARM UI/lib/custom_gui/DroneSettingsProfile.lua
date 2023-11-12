@@ -37,6 +37,7 @@ function DroneSettingsProfile:init()
 			use_external_aim = false,		
 			use_external_orbit = false,
 			bullet_range = 100,
+			range_finding_mode = 1,
 		},
 		["KITE"] = {
 			dynamic_positioning_mode = false,
