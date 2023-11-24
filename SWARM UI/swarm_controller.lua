@@ -90,7 +90,7 @@ local masterSettings = Settings({	turret_mode = true,
 									aim_target_mode = "PLAYER",
 									orbit_target_mode = "PLAYER",
 									master_player = "PHO",
-									master_ship = "82"})
+									master_ship = "3"})
 									
 local drone_ids_list = {
 						"420",

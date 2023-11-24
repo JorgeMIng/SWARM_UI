@@ -33,11 +33,11 @@ function DroneSettingsProfile:init()
 			aim_target_mode = "PLAYER",		
 			orbit_target_mode = "PLAYER",		
 			master_player = "PHO",		
-			master_ship = "82",		
+			master_ship = "3",		
 			use_external_aim = false,		
 			use_external_orbit = false,
 			bullet_range = 100,
-			range_finding_mode = 1,
+			range_finding_mode = 3,
 		},
 		["KITE"] = {
 			dynamic_positioning_mode = false,
