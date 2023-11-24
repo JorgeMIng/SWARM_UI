@@ -8,11 +8,19 @@ local component_broadcast_channel = 100
 local debug_transmitter_channel = 9
 local DEBUG_TO_DRONE_CHANNEL = 9
 local DRONE_TO_DEBUG_CHANNEL = 10
+
+local EXTERNAL_AIM_TARGETING_CHANNEL = 1009
+local EXTERNAL_ORBIT_TARGETING_CHANNEL = 1010
+local EXTERNAL_GOGGLE_PORT_CHANNEL = 1011
 local remote_control_receiver_channel = 8
 
 local main_controller_id =11
 modem.close(8)
 modem.open(DRONE_TO_DEBUG_CHANNEL)
+
+modem.close(EXTERNAL_AIM_TARGETING_CHANNEL)
+modem.close(EXTERNAL_ORBIT_TARGETING_CHANNEL)
+modem.open(EXTERNAL_GOGGLE_PORT_CHANNEL)
 --modem.open(2)
 
 
@@ -38,14 +46,16 @@ modem.open(DRONE_TO_DEBUG_CHANNEL)
 
 --modem.transmit(remote_control_transmitter_channel, remote_control_receiver_channel, "w")
 --modem.transmit(1,10000,{ship_id=0,ship_orientation={7,4,1,1}})
---local DRONE_ID = 421
+local DRONE_ID = 421
 --local DRONE_ID = 420
 --local DRONE_ID = 301
 --local DRONE_ID = 302
 --local DRONE_ID = 701
 --local DRONE_ID = 507
 --local DRONE_ID = 506
-local DRONE_ID = 421
+--local DRONE_ID = 109
+--local DRONE_ID = 108
+--local DRONE_ID = 107
 function transmit(cmd,args)
 	modem.transmit(remote_control_transmitter_channel, remote_control_receiver_channel, 
 	{drone_id=DRONE_ID,msg={cmd=cmd,args=args}})
@@ -117,6 +127,9 @@ function commands()
 				transmit("hush")
 				transmit("HUSH")
 				break
+			elseif key == keys.t then
+				transmit("restart")
+				print("restarted craft...")
 			elseif key == keys.q then
 				break
 			elseif key == keys.f then
