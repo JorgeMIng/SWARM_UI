@@ -1,7 +1,15 @@
+--[[
+change the DRONE_ID to the drone you want to debug
+press "r" to shutdown drone remotely
+press "t" to restart drone remotely
+]]--
+
 os.loadAPI("lib/quaternions.lua")
 
 modem = peripheral.find("modem")
 rednet.open("back")
+
+local DRONE_ID = 421
 
 local remote_control_transmitter_channel = 7
 local component_broadcast_channel = 100
@@ -46,7 +54,7 @@ modem.open(EXTERNAL_GOGGLE_PORT_CHANNEL)
 
 --modem.transmit(remote_control_transmitter_channel, remote_control_receiver_channel, "w")
 --modem.transmit(1,10000,{ship_id=0,ship_orientation={7,4,1,1}})
-local DRONE_ID = 421
+
 --local DRONE_ID = 420
 --local DRONE_ID = 301
 --local DRONE_ID = 302
