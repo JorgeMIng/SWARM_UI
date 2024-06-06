@@ -16,19 +16,27 @@ rednet.open("back")
 
 local DEBUG_TO_DRONE_CHANNEL = 9
 local DRONE_TO_DEBUG_CHANNEL = 10
+modem.open(DRONE_TO_DEBUG_CHANNEL)
 
+local DRONE_ID = 201
 
-local DRONE_ID = 101
+local DRONE_IDs = {201,202,203,204,205,206,207,208,209,210,211,212,213,214,215}
 
 local keyBinds = {
 		[keys.h] = function ()
-			transmit("hush")
-			transmit("HUSH")
+			transmit("hush",nil,201)
+			transmit("HUSH",nil,201)
 			print("hush drone: ",DRONE_ID)
 		end,
-		[keys.t] = function ()
-			transmit("restart")
+		[keys.r] = function ()
+			transmit("restart",nil,201)
 			print("restarted drone: ",DRONE_ID)
+		end,
+		[keys.t] = function ()
+			for i,id in ipairs(DRONE_IDs) do 
+				transmit("restart",nil,id)
+				print("restarted drone: ",id)
+			end
 		end,
 		[keys.q] = function (arguments)
 			os.reboot()
@@ -41,6 +49,11 @@ local keyBinds = {
 function transmit(cmd,args)
 	modem.transmit(DEBUG_TO_DRONE_CHANNEL, DRONE_TO_DEBUG_CHANNEL,
 	{drone_id=DRONE_ID,msg={cmd=cmd,args=args}})
+end
+
+function transmit(cmd,args,drone_id)
+	modem.transmit(DEBUG_TO_DRONE_CHANNEL, DRONE_TO_DEBUG_CHANNEL,
+	{drone_id=drone_id,msg={cmd=cmd,args=args}})
 end
 
 function commands()
