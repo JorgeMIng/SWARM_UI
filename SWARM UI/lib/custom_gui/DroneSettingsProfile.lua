@@ -33,7 +33,7 @@ function DroneSettingsProfile:init()
 			aim_target_mode = "PLAYER",		
 			orbit_target_mode = "PLAYER",		
 			master_player = "PHO",		
-			master_ship = "3",		
+			master_ship = "39",		
 			use_external_aim = false,		
 			use_external_orbit = false,
 			bullet_range = 100,
@@ -44,7 +44,7 @@ function DroneSettingsProfile:init()
 			run_mode = false,		
 			player_mounting_ship = false,		
 			orbit_target_mode = "PLAYER",		
-			master_player = "PHO",		
+			master_player = "USERNAME_HERE",		
 			master_ship = "82",		
 			rope_length = 20,
 		},
@@ -53,7 +53,7 @@ function DroneSettingsProfile:init()
 			run_mode = false,		
 			player_mounting_ship = false,
 			orbit_target_mode = "PLAYER",		
-			master_player = "PHO",		
+			master_player = "USERNAME_HERE",		
 			master_ship = "82",		
 		},
 		["SEGMENT"] = {
@@ -61,7 +61,7 @@ function DroneSettingsProfile:init()
 			run_mode = false,		
 			player_mounting_ship = false,		
 			orbit_target_mode = "PLAYER",		
-			master_player = "PHO",		
+			master_player = "USERNAME_HERE",		
 			master_ship = "82",
 			
 			segment_delay = 50,			
@@ -74,10 +74,10 @@ function DroneSettingsProfile:init()
 			run_mode = false,		
 			player_mounting_ship = false,		
 			orbit_target_mode = "PLAYER",		
-			master_player = "PHO",		
+			master_player = "USERNAME_HERE",		
 			master_ship = "82",
 			
-			walk = true,			
+			walk = false,			
 		},
 		["DEFAULT"] = {
 			default_label = "DEFAULT LABEL",
