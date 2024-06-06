@@ -18,18 +18,40 @@ local DEBUG_TO_DRONE_CHANNEL = 9
 local DRONE_TO_DEBUG_CHANNEL = 10
 modem.open(DRONE_TO_DEBUG_CHANNEL)
 
-local DRONE_ID = 201
+local HEAD_DRONE_ID = 14
 
-local DRONE_IDs = {201,202,203,204,205,206,207,208,209,210,211,212,213,214,215}
+local DRONE_IDs = {
+	"14",
+	"15",
+	"16",
+	"17",
+	"18",
+	"19",
+	"20",
+	"21",
+	"22",
+	"23",
+	"28",
+	"29",
+	}
+	
+function initLeviathanDrone()
+	for i=2,#DRONE_IDs,1 do
+		transmit("segment_delay",5*(i-1),DRONE_IDs[i])
+		transmit("gap_length",4,DRONE_IDs[i])
+		transmit("designate_to_ship",HEAD_DRONE_ID,DRONE_IDs[i])
+	end
+	print("initialized Leviathan Drone Segments")
+end
 
 local keyBinds = {
 		[keys.h] = function ()
-			transmit("hush",nil,201)
-			transmit("HUSH",nil,201)
-			print("hush drone: ",DRONE_ID)
+			transmit("hush",nil,HEAD_DRONE_ID)
+			transmit("HUSH",nil,HEAD_DRONE_ID)
+			print("hush drone: ",HEAD_DRONE_ID)
 		end,
 		[keys.r] = function ()
-			transmit("restart",nil,201)
+			transmit("restart",nil,HEAD_DRONE_ID)
 			print("restarted drone: ",DRONE_ID)
 		end,
 		[keys.t] = function ()
@@ -37,6 +59,11 @@ local keyBinds = {
 				transmit("restart",nil,id)
 				print("restarted drone: ",id)
 			end
+			os.sleep(1)
+			initLeviathanDrone()
+		end,
+		[keys.i] = function ()
+			initLeviathanDrone()
 		end,
 		[keys.q] = function (arguments)
 			os.reboot()
