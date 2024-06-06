@@ -65,7 +65,7 @@ function DroneProtocolPageTurret2:init(root,init_config)
 	
 	DroneProtocolPageTurret2.superClass.init(self,root,init_config)
 	
-	self.bulletRangeOverride = IntegerScroller(self:getSettings(self.drone_type).bullet_range,15,300)
+	self.bulletRangeOverride = IntegerScroller(self:getSettings(self.drone_type).bullet_range,15,500)
 	self:setSettings(self.drone_type,"bullet_range",self:getBulletRangeOverrideDistance())
 	
 	
