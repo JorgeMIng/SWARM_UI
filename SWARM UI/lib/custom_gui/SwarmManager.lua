@@ -26,6 +26,16 @@ local expect = require "cc.expect"
 
 local SwarmManager = LinearContainer:subclass()
 
+function getMaxDroneIDLength(drone_ids)
+	local max_length = 0
+	for _,ids in ipairs(drone_ids) do
+		local string_length = #tostring(ids)
+		if(string_length>max_length) then
+			max_length = string_length
+		end
+	end
+	return max_length
+end
 
 function SwarmManager:init(root,init_arguments)
 	expect(1, root, "table")
@@ -39,7 +49,7 @@ function SwarmManager:init(root,init_arguments)
 	self:updateDroneList(init_arguments.drone_id_list)
 	
 	
-	self.droneList = ListBox(root,3,20,self.drone_id_list)
+	self.droneList = ListBox(root,getMaxDroneIDLength(self.drone_id_list),20,self.drone_id_list)
 	self.droneList:setSelected(1)
 	self.droneListscrollBar = ScrollBar(root,self.droneList)
 	
