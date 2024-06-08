@@ -93,19 +93,17 @@ local masterSettings = Settings({	turret_mode = true,
 									master_ship = "39"})
 									
 local drone_ids_list = {
-						"14",
-						"15",
-						"16",
-						"17",
-						"18",
-						"19",
-						"20",
-						"21",
-						"22",
-						"23",
-						"28",
-						"29",
-						}
+	"16",
+	"29",
+	"37",
+	"30",
+	"31",
+	"32",
+	"33",
+	"34",
+	"35",
+	"36",
+}
 --[[
 for i=0,30 do
 	table.insert(drone_ids_list,tostring(i))
