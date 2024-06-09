@@ -34,10 +34,12 @@ local DRONE_IDs = {
 	"35",
 	"36",
 }
-	
+
+local SEGMENT_DELAY = 25
+
 function initDrones()
 	for i=2,#DRONE_IDs,1 do
-		transmit("segment_delay",25*(i-1),DRONE_IDs[i])
+		transmit("segment_delay",SEGMENT_DELAY*(i-1),DRONE_IDs[i])
 		transmit("gap_length",1,DRONE_IDs[i])
 		transmit("designate_to_ship",HEAD_DRONE_ID,DRONE_IDs[i])
 	end
