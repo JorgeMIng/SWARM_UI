@@ -71,15 +71,32 @@ function DroneProtocolPageSegment2:init(root,init_config)
 	root:onLayout()
 end
 
+function DroneProtocolPageSegment2:setInstanceSpecificSettingsBox(enable,page_settings)
+	if (enable) then
+		self.segmentDelay:setText(tostring(page_settings.segment_delay))
+		self.gapLength:setText(tostring(page_settings.gap_length))
+
+		self.children = {}
+		self:addChild(self.groupLabel,false,true,Constants.LinearAlign.CENTER)
+		self:addChild(self.segmentNumberLabel,false,true,Constants.LinearAlign.CENTER)
+		self:addChild(self.segmentDelayBox,false,true,Constants.LinearAlign.CENTER)
+		self:addChild(self.gapLengthBox,false,true,Constants.LinearAlign.CENTER)
+	else
+		self.children = {}
+		self:addChild(self.groupLabel,false,true,Constants.LinearAlign.CENTER)
+		self:addChild(self.segmentNumberLabel,false,true,Constants.LinearAlign.CENTER)
+	end
+end
+
 function DroneProtocolPageSegment2:refresh()
 	
 	local page_settings = self:getSettings(self.drone_type)
 	
 	self.groupLabel.text = "GROUP:"..tostring(page_settings.group_id)
 	self.segmentNumberLabel.text = "SEGMENT:"..tostring(page_settings.segment_number)
-	self.segmentDelay:setText(tostring(page_settings.segment_delay))
-	self.gapLength:setText(tostring(page_settings.gap_length))
-	
+
+	self:setInstanceSpecificSettingsBox(self:getDroneId()~="ALL",page_settings)
+
 	self.root:onLayout()
 end
 
