@@ -20,6 +20,7 @@ local expect = require "cc.expect"
 
 local DroneSettingsProfile = Object:subclass()
 
+--[["ALL" DEFAULT CONTROLLER SETTINGS]]--
 function DroneSettingsProfile:init()
 	DroneSettingsProfile.superClass.init(self)
 	self.drone_id = "ALL"
@@ -60,9 +61,9 @@ function DroneSettingsProfile:init()
 			dynamic_positioning_mode = false,
 			run_mode = false,		
 			player_mounting_ship = false,		
-			orbit_target_mode = "PLAYER",		
-			master_player = "USERNAME_HERE",		
-			master_ship = "82",
+			orbit_target_mode = "SHIP",		
+			master_player = "PHO",		
+			master_ship = "16",
 			
 			segment_delay = 50,			
 			gap_length = 5,
@@ -74,10 +75,10 @@ function DroneSettingsProfile:init()
 			run_mode = false,		
 			player_mounting_ship = false,		
 			orbit_target_mode = "PLAYER",		
-			master_player = "USERNAME_HERE",		
-			master_ship = "82",
+			master_player = "PHO",		
+			master_ship = "3",
 			
-			walk = false,			
+			walk = false,
 		},
 		["DEFAULT"] = {
 			default_label = "DEFAULT LABEL",
