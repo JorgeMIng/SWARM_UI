@@ -92,7 +92,7 @@ local masterSettings = Settings({	turret_mode = true,
 									master_player = "PHO",
 									master_ship = "39"})
 									
-local drone_ids_list = {
+local DRONE_IDs = {
 	"16",
 	"29",
 	"37",
@@ -104,16 +104,12 @@ local drone_ids_list = {
 	"35",
 	"36",
 }
---[[
-for i=0,30 do
-	table.insert(drone_ids_list,tostring(i))
-end
-]]--						
+				
 local drone_settings_list = {}
 drone_settings_list["ALL"] = masterSettings
 
 
 
-local ui = remoteUI(masterSettings,drone_ids_list,communication_channels)
+local ui = remoteUI(masterSettings,DRONE_IDs,communication_channels)
 
 ui:mainLoop()
