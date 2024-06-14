@@ -35,7 +35,7 @@ local DRONE_IDs = {
 	"36",
 }
 
-local SEGMENT_DELAY = 25
+local SEGMENT_DELAY = 50
 
 function initDrones()
 	for i=2,#DRONE_IDs,1 do
@@ -51,6 +51,12 @@ local keyBinds = {
 			transmit("hush",nil,HEAD_DRONE_ID)
 			transmit("HUSH",nil,HEAD_DRONE_ID)
 			print("hush drone: ",HEAD_DRONE_ID)
+		end,
+		[keys.g] = function ()
+			for i,id in ipairs(DRONE_IDs) do
+				transmit("hush",nil,id)
+				print("hush drone: ",id)
+			end
 		end,
 		[keys.r] = function ()
 			transmit("restart",nil,HEAD_DRONE_ID)
