@@ -8,7 +8,7 @@ local ScrollBar = require 'lib.gui.ScrollBar'
 local Constants = require 'lib.gui.Constants'
 local ScrollWidget = require 'lib.gui.ScrollWidget'
 local Object = require 'lib.object.Object'
-
+local JSON = require "lib.JSON"
 os.loadAPI("lib/list_manager.lua")
 local IndexedListScroller = list_manager.IndexedListScroller
 local remoteUI = require 'lib.custom_gui.remoteUI'
@@ -92,24 +92,31 @@ local masterSettings = Settings({	turret_mode = true,
 									master_player = "PHO",
 									master_ship = "39"})
 									
-local DRONE_IDs = {
-	"16",
-	"29",
-	"37",
-	"30",
-	"31",
-	"32",
-	"33",
-	"34",
-	"35",
-	"36",
-}
-				
+local drone_ids_list = {}
+
+function getDroneIDsFromJSON()
+	local h = fs.open("./drone_ids.json","r")
+	local json_string = h.readLine()
+	local droneIDs = JSON:decode(json_string)
+	h.close()
+	for i=1,#droneIDs do
+		droneIDs[i] = tostring(droneIDs[i])
+	end
+	return droneIDs
+end
+
+drone_ids_list=getDroneIDsFromJSON()
+
+--[[
+for i=0,30 do
+	table.insert(drone_ids_list,tostring(i))
+end
+]]--						
 local drone_settings_list = {}
 drone_settings_list["ALL"] = masterSettings
 
 
 
-local ui = remoteUI(masterSettings,DRONE_IDs,communication_channels)
+local ui = remoteUI(masterSettings,drone_ids_list,communication_channels)
 
 ui:mainLoop()
