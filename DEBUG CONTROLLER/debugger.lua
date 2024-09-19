@@ -20,21 +20,25 @@ modem.open(DRONE_TO_DEBUG_CHANNEL)
 
 local HEAD_DRONE_ID = 14
 
-local DRONE_IDs = {
-	"14",
-	"15",
-	"16",
-	"17",
-	"18",
-	"19",
-	"20",
-	"21",
-	"22",
-	"23",
-	"28",
-	"29",
-	}
-	
+local DRONE_IDs = {}
+
+function getDroneIDsFromJSON()
+	local h = fs.open("./drone_ids.json","r")
+	local json_string = h.readLine()
+	local droneIDs = JSON:decode(json_string)
+	h.close()
+	for i=1,#droneIDs do
+		droneIDs[i] = tostring(droneIDs[i])
+	end
+	return droneIDs
+end
+
+table.insert(DRONE_IDs,getDroneIDsFromJSON())
+print(textutils.serialise(DRONE_IDs))
+local ORBIT_FORMATION = {
+	--vector.new(5,3,5),
+}
+
 function initLeviathanDrone()
 	for i=2,#DRONE_IDs,1 do
 		transmit("segment_delay",5*(i-1),DRONE_IDs[i])
