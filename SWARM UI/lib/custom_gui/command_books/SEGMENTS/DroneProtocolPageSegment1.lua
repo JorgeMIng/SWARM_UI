@@ -1,5 +1,5 @@
-os.loadAPI("lib/list_manager.lua")
-os.loadAPI("lib/utilities.lua")
+local list_manager = require ("lib.list_manager")
+local list_manager = require ("lib.utilities")
 
 local IntegerScroller = utilities.IntegerScroller
 

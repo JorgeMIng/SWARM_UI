@@ -9,7 +9,7 @@ local Constants = require 'lib.gui.Constants'
 local ScrollWidget = require 'lib.gui.ScrollWidget'
 local Object = require 'lib.object.Object'
 local JSON = require "lib.JSON"
-os.loadAPI("lib/list_manager.lua")
+local list_manager = require ("lib.list_manager")
 local IndexedListScroller = list_manager.IndexedListScroller
 local remoteUI = require 'lib.custom_gui.remoteUI'
 
@@ -23,6 +23,7 @@ local component_broadcast_channel = 100
 local debug_transmitter_channel = 9
 local debug_receiver_channel = 10
 local remote_control_receiver_channel = 8
+local REPLY_DUMP_CHANNEL = 10000
 
 local main_controller_id =11
 modem.close(debug_receiver_channel)
@@ -34,6 +35,12 @@ function transmitToDrone(drone,cmd,args)
 	modem.transmit(remote_control_transmitter_channel, remote_control_receiver_channel, 
 	{drone_id=drone,msg={cmd=cmd,args=args}})
 end
+
+function debugProbe(msg,sendChannel,dumpChaneel)--transmits to debug channel
+	modem.transmit(sendChannel,dumpChaneel, msg)
+end
+
+--debugProbe("hello this is remote",debug_receiver_channel,REPLY_DUMP_CHANNEL)
 
 transmitToDrone(DRONE_ID,"RISE")
 
@@ -89,8 +96,8 @@ local masterSettings = Settings({	turret_mode = true,
 									use_external_orbit = false,
 									aim_target_mode = "PLAYER",
 									orbit_target_mode = "PLAYER",
-									master_player = "PHO",
-									master_ship = "39"})
+									master_player = "Yordi111",
+									master_ship = "2"})
 									
 local drone_ids_list = {}
 

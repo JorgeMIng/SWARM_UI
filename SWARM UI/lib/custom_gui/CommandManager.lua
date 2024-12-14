@@ -1,4 +1,4 @@
-os.loadAPI("lib/list_manager.lua")
+local list_manager = require ("lib.list_manager")
 
 local Root = require 'lib.gui.Root'
 local LinearContainer = require 'lib.gui.LinearContainer'
@@ -43,6 +43,7 @@ function CommandManager:init(root,init_arguments)
 	CommandManager.superClass.init(self,root,Constants.LinearAxis.VERTICAL,0,0)
 	self.drone_id_list = init_arguments.drone_id_list
 	self.com_channels = init_arguments.com_channels
+	--init_arguments.settings
 	self.swarm_profile = DroneSettingsProfile()
 	self.current_drone_profile = DroneSettingsProfile()
 	

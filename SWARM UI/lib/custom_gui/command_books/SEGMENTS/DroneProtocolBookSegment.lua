@@ -1,4 +1,4 @@
-os.loadAPI("lib/list_manager.lua")
+local list_manager = require ("lib.list_manager")
 
 local Root = require 'lib.gui.Root'
 local LinearContainer = require 'lib.gui.LinearContainer'

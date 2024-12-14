@@ -1,4 +1,4 @@
-os.loadAPI("lib/list_manager.lua")
+local list_manager = require ("lib.list_manager")
 
 local Root = require 'lib.gui.Root'
 local LinearContainer = require 'lib.gui.LinearContainer'
@@ -33,8 +33,8 @@ function DroneSettingsProfile:init()
 			player_mounting_ship = false,
 			aim_target_mode = "PLAYER",		
 			orbit_target_mode = "PLAYER",		
-			master_player = "PHO",		
-			master_ship = "39",		
+			master_player = "Yordi111",		
+			master_ship = "6",		
 			use_external_aim = false,		
 			use_external_orbit = false,
 			bullet_range = 100,

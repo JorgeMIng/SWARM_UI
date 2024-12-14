@@ -1,4 +1,4 @@
-os.loadAPI("lib/list_manager.lua")
+local list_manager = require ("lib.list_manager")
 
 
 local Root = require 'lib.gui.Root'
@@ -94,7 +94,15 @@ function remoteUI:addToDroneList(drone)
 	end
 end
 
+function debugProbe(msg,sendChannel,dumpChaneel)--transmits to debug channel
+	modem.transmit(sendChannel,dumpChaneel, msg)
+end
+
+
+
+
 function remoteUI:transmitToDrone(drone,cmd,args)
+	print("sending")
 	self.swarmManager.commandManager:transmitToDrone(drone,cmd,args)
 end
 
@@ -315,12 +323,18 @@ function remoteUI:mainLoop()
     self:show()
     while true do
         evt = {os.pullEventRaw()}
+		
         self:onEvent(evt)
+		debugProbe(evt[1],10,10000)
         if evt[1] == "terminate" then
             break
 		elseif evt[1] =="modem_message" then
+			debugProbe(evt[5],10,10000)
+			
 			if (evt[5].drone_ID) then
+				
 				if (self.drone_id_whitelist[tostring(evt[5].drone_ID)]) then
+					--debugProbe(evt[5],10,10000)
 					self:droneToModemActions(evt[5])
 				end
 			end
