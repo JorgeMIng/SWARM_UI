@@ -7,8 +7,7 @@
 	"h" to shutdown drone remotely
 	"r" to restart drone remotely
 ]]--
-
-os.loadAPI("lib/quaternions.lua")
+local JSON = require "lib.JSON"
 
 modem = peripheral.find("modem")
 rednet.open("back")
@@ -101,8 +100,8 @@ end
 function listen()
 	while true do
 		local event, modemSide, senderChannel, replyChannel, message, senderDistance = os.pullEvent("modem_message")
-		term.clear()
-		term.setCursorPos(1,1)
+		--term.clear()
+		--term.setCursorPos(1,1)
 		print(senderChannel)
 		if message then
 			print(textutils.serialize(message))

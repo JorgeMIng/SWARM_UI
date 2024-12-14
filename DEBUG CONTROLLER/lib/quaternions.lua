@@ -2,7 +2,8 @@
 --https://gist.github.com/ColonelThirtyTwo/1735522 --
 -- faster access to some math library functions
 
-os.loadAPI("lib/pid_utility.lua")
+local utilities = require "lib.utilities"
+
 local abs   = math.abs
 local Round = math.Round
 local sqrt  = math.sqrt
@@ -20,12 +21,14 @@ local deg2rad = math.pi/180
 local rad2deg = 180/math.pi
 
 local delta = 0.0000001000000
-local clamp = pid_utility.clamp
+
+local clamp = utilities.clamp
 
 Quaternion = {}
 Quaternion.__index = Quaternion
 
 function Quaternion.new(q,r,s,t)
+	--print("newQuat",q,r,s,t)
 	return setmetatable({q,r,s,t},Quaternion)
 end
 local quat_new = Quaternion.new
@@ -278,7 +281,6 @@ function Quaternion:inv()
 	return quat_new( self[1]*li, -self[2]*li, -self[3]*li, -self[4]*li )--PHOBOSS: should be faster than dividing each
 end
 
-
 --- Raises Euler's constant e to the power self
 function Quaternion:exp()
 	return qexp(self)
@@ -312,6 +314,17 @@ end
 	return qmul(q0,q)
 end
 ]]--
+
+--- Returns the difference between two quaternions
+function Quaternion.diff(q1,q2)
+	local diff = quat_new(0,0,0,0)
+	
+	--diff * q1 = q2
+	diff = q2 * q1:inv()
+	
+	diff:normalize()
+	return diff
+end
 
 --https://github.com/topameng/CsToLua/blob/master/tolua/Assets/Lua/Quaternion.lua--
 function Quaternion.Dot(a, b)
@@ -460,6 +473,71 @@ function Quaternion.slerpVector(vec0,vec1,weight)
 	end
 end
 --thanks to acreol, https://devforum.roblox.com/t/vector3slerpv2t-unclamped/296542--
+
+--FOR VS2-COMPUTERS UPDATE: INERTIA TENSORS --
+--https://gamedev.stackexchange.com/questions/140860/transform-inertia-tensor-using-quaternion--
+--[[
+	tensor = { --LEGACY CODE: before I added the matrix.lua library
+	x = vector.new(x,y,z),
+	y = vector.new(x,y,z),
+	z = vector.new(x,y,z),
+	}
+]]--
+function Quaternion.rotateTensor(tensor,new_rotation)
+	c1 = vector.new(tensor.x.x,tensor.y.x,tensor.z.x);
+	c2 = vector.new(tensor.x.y,tensor.y.y,tensor.z.y);
+	c3 = vector.new(tensor.x.z,tensor.y.z,tensor.z.z);
+	
+	cc1 = new_rotation:inv():rotateVector3(c1);
+	cc2 = new_rotation:inv():rotateVector3(c2);
+	cc3 = new_rotation:inv():rotateVector3(c3);
+	
+	rr1 = vector.new(cc1.x,cc2.x,cc3.x);
+	rr2 = vector.new(cc1.y,cc2.y,cc3.y);
+	rr3 = vector.new(cc1.z,cc2.z,cc3.z);
+	
+	rrr1 = new_rotation:inv():rotateVector3(rr1);
+	rrr2 = new_rotation:inv():rotateVector3(rr2);
+	rrr3 = new_rotation:inv():rotateVector3(rr3);
+	
+	ccc1 = vector.new(rrr1.x,rrr2.x,rrr3.x);
+	ccc2 = vector.new(rrr1.y,rrr2.y,rrr3.y);
+	ccc3 = vector.new(rrr1.z,rrr2.z,rrr3.z);
+	
+	return {
+		x=vector.new(rrr1.x,rrr2.x,rrr3.x),
+		y=vector.new(rrr1.y,rrr2.y,rrr3.y),
+		z=vector.new(rrr1.z,rrr2.z,rrr3.z)
+	}
+end
+
+function Quaternion.rotateMatrix(matrix,new_rotation)
+	c1 = vector.new(matrix[1][1],matrix[2][1],matrix[3][1]);
+	c2 = vector.new(matrix[1][2],matrix[2][2],matrix[3][2]);
+	c3 = vector.new(matrix[1][3],matrix[2][3],matrix[3][3]);
+	
+	cc1 = new_rotation:inv():rotateVector3(c1);
+	cc2 = new_rotation:inv():rotateVector3(c2);
+	cc3 = new_rotation:inv():rotateVector3(c3);
+	
+	rr1 = vector.new(cc1.x,cc2.x,cc3.x);
+	rr2 = vector.new(cc1.y,cc2.y,cc3.y);
+	rr3 = vector.new(cc1.z,cc2.z,cc3.z);
+	
+	rrr1 = new_rotation:inv():rotateVector3(rr1);
+	rrr2 = new_rotation:inv():rotateVector3(rr2);
+	rrr3 = new_rotation:inv():rotateVector3(rr3);
+	
+	return {
+		{rrr1.x,rrr2.x,rrr3.x},
+		{rrr1.y,rrr2.y,rrr3.y},
+		{rrr1.z,rrr2.z,rrr3.z}
+	}
+end
+--FOR VS2-COMPUTERS UPDATE: INERTIA TENSORS --
+
+
+
 --PHOBOSS:--
 
 --- Returns the angle of rotation in degrees
@@ -515,3 +593,5 @@ end
 function Quaternion:tostring()
 	return string.format("<%d,%d,%d,%d>",self[1],self[2],self[3],self[4])
 end
+
+return Quaternion
