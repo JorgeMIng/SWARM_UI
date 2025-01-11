@@ -10,6 +10,7 @@ function Container:init(root)
     expect(1, root, "table", "nil")
     Container.superClass.init(self,root)
     self.children = {}
+    self.visible=true
 end
 
 -- Add a child widget to the Container.
@@ -19,9 +20,11 @@ function Container:addChild(child,...)
 end
 
 function Container:onRedraw()
-    Container.superClass.onRedraw(self)
-    for _,widget in pairs(self.children) do
-        widget:onRedraw()
+    if self.visible then
+        Container.superClass.onRedraw(self)
+        for _,widget in pairs(self.children) do
+            widget:onRedraw()
+        end
     end
 end
 

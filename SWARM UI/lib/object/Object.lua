@@ -1,3 +1,9 @@
+--[[
+I have to thank Knector01 for this Object class. It was from their GUI API. 
+It was so well documented, simple to understand and easy to use that I decided to use it to tidy up my drone code into its own neat instantiable class.
+https://github.com/knector01/gui.lua/blob/master/docs.md#object
+]]--
+
 local expect = require "cc.expect"
 
 -- Creates an instance of a class, and then calls the class's init() method
@@ -53,6 +59,37 @@ function Object:instanceof(class)
         c = c.superClass
     end
     return false
+end
+
+function Object:serialize()
+    local data = {
+        class = self.class,        -- Guardamos la referencia a la clase
+        variables = {}             -- Aquí guardamos las variables de la instancia
+    }
+
+    -- Copiar las variables de la instancia (no las funciones)
+    for key, value in pairs(self) do
+        if type(value) ~= "function" then  -- Solo guardamos valores, no funciones
+            data.variables[key] = value
+        end
+    end
+
+    return textutils.serialize(data)  -- Serializamos los datos de la instancia
+end
+
+-- Función para deserializar una instancia
+function Object.deserialize(serializedData)
+    local data = textutils.unserialize(serializedData)
+
+    -- Crear la nueva instancia usando la clase guardada
+    local instance = new(data.class)
+
+    -- Restaurar las variables
+    for key, value in pairs(data.variables) do
+        instance[key] = value
+    end
+
+    return instance
 end
 
 return Object

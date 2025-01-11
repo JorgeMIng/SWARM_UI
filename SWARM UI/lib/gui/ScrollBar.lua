@@ -10,12 +10,23 @@ local ScrollBar = Widget:subclass()
 -- Parameters:
 -- - root (Root): The root widget
 -- - scrollWidget (ScrollWidget): The widget this ScrollBar should scroll
-function ScrollBar:init(root,scrollWidget)
+function ScrollBar:init(root,scrollWidget,multiple)
     -- todo: add horizontal scrollbars
     expect(1, root, "table")
     expect(2, scrollWidget, "table")
     ScrollBar.superClass.init(self,root)
-    self.scrollWidget = scrollWidget
+    self.multiple=multiple
+    print(multiple)
+    if multiple~=nil and multiple then
+        self.scrollWidgets=scrollWidget
+        self.scrollWidget=scrollWidget[1]
+        for _,widgets in ipairs(self.scrollWidgets) do
+            widgets.scrollbar = self
+        end
+        
+    else
+        self.scrollWidget = scrollWidget
+    end
     scrollWidget.scrollbar = self
     self.drag = 0
     self.dragOffset = 0
@@ -37,6 +48,7 @@ function ScrollBar:canScroll()
 end
 
 function ScrollBar:getBarPos()
+
     local scroll = self.scrollWidget.scroll
     local h = self:getBarHeight()
     local maxScroll = self.scrollWidget:getMaxScroll()
@@ -113,7 +125,7 @@ function ScrollBar:render()
 end
 
 function ScrollBar:onMouseScroll(dir, x, y)
-    self.scrollWidget:setScroll(self.scrollWidget.scroll+dir*self.scrollWidget.scrollSpeed)
+    self:setScrolls(self.scrollWidget.scroll+dir*self.scrollWidget.scrollSpeed)
     return true
 end
 
@@ -123,21 +135,21 @@ function ScrollBar:onMouseDown(btn, x, y)
     if self:canScroll() then
         if y == self.pos[2] then
             self.drag = 4
-            self.scrollWidget:setScroll(self.scrollWidget.scroll-1)
+            self:setScrolls(self.scrollWidget.scroll-1)
         elseif y == self.pos[2]+self.size[2]-1 then
             self.drag = 5
-            self.scrollWidget:setScroll(self.scrollWidget.scroll+1)
+            self:setScrolls(self.scrollWidget.scroll+1)
         else
             local barPos = self:getBarPos()
             local barHeight = self:getBarHeight()
             if y < self.pos[2] + barPos then
-                self.scrollWidget:setScroll(self.scrollWidget.scroll-self.scrollWidget.size[2])
+                self:setScrolls(self.scrollWidget.scroll-self.scrollWidget.size[2])
                 self.drag = 2
             elseif y < self.pos[2] + barPos + barHeight then
                 self.drag = 1
                 self.dragOffset = y - self.pos[2] - barPos
             else
-                self.scrollWidget:setScroll(self.scrollWidget.scroll+self.scrollWidget.size[2])
+                self:setScrolls(self.scrollWidget.scroll+self.scrollWidget.size[2])
                 self.drag = 3
             end
         end
@@ -146,13 +158,23 @@ function ScrollBar:onMouseDown(btn, x, y)
     return true
 end
 
+function ScrollBar:setScrolls(scroll)
+    if self.multiple then
+        for _,widget in ipairs(self.scrollWidgets) do
+            widget:setScroll(scroll)
+        end
+    else
+        self.scrollWidget:setScroll(scroll)
+    end
+end
+
 function ScrollBar:onMouseDrag(btn, x, y)
     if self:canScroll() and self.drag == 1 then
         local barHeight = self:getBarHeight()
         local size = self.size[2]-2
         local maxScroll = self.scrollWidget:getMaxScroll()
         local scroll = math.floor((y-self.pos[2]-self.dragOffset-1)*(maxScroll/(size-barHeight))+0.5)
-        self.scrollWidget:setScroll(scroll)
+        self:setScrolls(scroll)
     end
     return true
 end

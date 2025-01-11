@@ -18,6 +18,7 @@ function Button:init(root,text)
     self.pushedColor = colors.cyan
     self.textColor = colors.white
     self.disabledColor = colors.gray
+    self.textDisabledColor = colors.black
     self.held = false
     self.enabled = true
 end
@@ -35,12 +36,15 @@ function Button:render()
     -- TODO: render outline when focused
     if not self.enabled then
         term.setBackgroundColor(self.disabledColor)
+        term.setTextColor(self.textDisabledColor)
     elseif self.held then --self.root.focus == self then
         term.setBackgroundColor(self.pushedColor)
+        term.setTextColor(self.textColor)
     else
         term.setBackgroundColor(self.color)
+        term.setTextColor(self.textColor)
     end
-    term.setTextColor(self.textColor)
+   
     local myX,myY = self.pos[1], self.pos[2]
 
     for y=1,self.size[2] do

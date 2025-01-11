@@ -27,6 +27,26 @@ print(string.format("clamp C Took %f seconds", benchmarkingTimer(clampC, n)))
 ]]--
 
 utilities = {}
+-- returns vector with 0 in case null
+function utilities.null_vector(vector_null)
+	
+	if vector_null==nil then
+		return vector.new(0,0,0)
+	end
+	return vector_null
+end
+
+function utilities.lenTable(table)
+	local count=0
+	
+	if (not table) then
+		return 0
+	end
+	for _ in pairs(table)do 
+		count=count+1
+	end
+	return count
+end
 
 function utilities.clamp(x, min, max)--benchmark speed: 0.027751 seconds
     if x < min then return min end
@@ -44,6 +64,35 @@ end
 --Thanks to rv55 from: https://stackoverflow.com/questions/1318220/lua-decimal-sign
 function utilities.sign(x) --faster, caution: doesn't return 0
   return x<0 and -1 or 1
+end
+
+function utilities.copy_table(table) 
+	local new_table={}
+	for key,value in pairs(table) do
+		new_table[key]=value
+	end
+	return new_table
+end
+
+function utilities.table_concat(t1,t2)
+    for i=1,#t2 do
+        t1[#t1+1] = t2[i]
+    end
+    return t1
+end
+
+
+function utilities.table_to_vector(vector_input)
+
+	return vector.new(utilities.round(vector_input.x),utilities.round(vector_input.y),utilities.round(vector_input.z))
+end
+
+function utilities.getIndexTable(table)
+	local result={}
+	for idx,item in ipairs(table) do
+		result[item]=idx
+	end
+	return result
 end
 
 function utilities.clamp_vector3(vec,minn,maxx)

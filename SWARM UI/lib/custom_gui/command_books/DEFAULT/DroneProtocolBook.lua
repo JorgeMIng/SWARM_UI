@@ -8,8 +8,21 @@ local Constants = require 'lib.gui.Constants'
 
 local MultiStateButton = require "lib.custom_gui.MultiStateButton"
 local BiStateButton = require "lib.custom_gui.BiStateButton"
-local DroneProtocolPage = require "lib.custom_gui.command_books.DEFAULT.DroneProtocolPage"
-local DroneProtocolPageDefault = require "lib.custom_gui.command_books.DEFAULT.DroneProtocolPageDefault"
+
+
+local dir_file = debug.getinfo(1).source:match("@?(.*/)")  -- Obtener la ruta completa
+-- Eliminar la barra inicial, si existe (por el prefijo @)
+if dir_file:sub(1, 1) == "/" then
+    dir_file = dir_file:sub(2)
+end
+dir_file=dir_file:gsub("/", ".")
+
+
+local DroneProtocolPage = require(dir_file.."DroneProtocolPage")
+local DroneProtocolPageDefault = require(dir_file.."DroneProtocolPageDefault")
+
+
+
 
 local LinearContainer = require 'lib.gui.LinearContainer'
 
@@ -30,6 +43,7 @@ function DroneProtocolBook:init(root,init_config)
 	self.drone_id = init_config.drone_id or "ALL"
 	self.drone_type = init_config.drone_type or "DEFAULT"
 	init_config.drone_type = self.drone_type
+	self.manager = init_config.manager
 	self.protocol_pages = init_config.protocol_pages or {
 														DroneProtocolPageDefault(root,init_config),
 														Label(root,"DEFAULT COMMANDS 2"),
@@ -78,6 +92,8 @@ function DroneProtocolBook:scrollPage(scroll_up)
 	else
 		self.pageScroller:scrollUp()
 	end
+	
+	
 	self:overridePageScroller(self.pageScroller)
 	self:turnToPage(self.pageScroller:getCurrentIndex())
 end
@@ -116,12 +132,20 @@ function DroneProtocolBook:turnToPage(page)
 end
 
 function DroneProtocolBook:updatePages(drone_profile)
+	local profile=drone_profile
 	self.drone_id = drone_profile.drone_id
+	
+	
 	for i,page in ipairs(self.protocol_pages) do
+
 		if (page:instanceof(DroneProtocolPage)) then
-			page:update(drone_profile)
+			
+			page:update(profile)
 		end
+			
 	end
+	
+	
 end
 
 

@@ -21,78 +21,116 @@ local expect = require "cc.expect"
 local DroneSettingsProfile = Object:subclass()
 
 --[["ALL" DEFAULT CONTROLLER SETTINGS]]--
-function DroneSettingsProfile:init()
+
+
+
+function DroneSettingsProfile:getAllDroneMetadata()
+	local dir_drone_profiles = dir_utilities.listFolders("lib/custom_gui/command_books/")
+	local result={}
+	local ordered_types={}
+	local count_skip=0
+
+	for idx,drone_type in ipairs(dir_drone_profiles) do
+
+		local lib_path = "lib.custom_gui.command_books."..drone_type..".metadata"
+		local path = lib_path:gsub("%.", "/")
+		local error=false
+		path=path..".lua"
+
+		if fs.exists(path) then		
+			local metadata = require("lib.custom_gui.command_books."..drone_type..".metadata")
+			if type(metadata) == "table" and metadata.id_name and metadata.get_settings and metadata.get_protocol_book_class_dir 
+			and not result[metadata.id_name] and metadata.visible then
+				result[metadata.id_name]=metadata
+				ordered_types[idx-count_skip]=metadata.id_name
+			else
+				error=true
+			end
+
+
+		else
+			error=true
+		end
+		if error then
+			count_skip = count_skip+1
+		end
+		
+	end	
+	return {metadata=result,order_types=ordered_types}
+end
+
+
+function DroneSettingsProfile:getMetadata()
+	if not self.drone_metadata  then
+		self.drone_metadata = DroneSettingsProfile:getAllDroneMetadata()
+	end
+	return self.drone_metadata.metadata
+end
+
+function DroneSettingsProfile:getOrderedTypes()
+	if not self.drone_metadata  then
+		self.drone_metadata = DroneSettingsProfile:getAllDroneMetadata()
+	end
+	return self.drone_metadata.order_types
+end
+
+function DroneSettingsProfile:getDefaultSettings()
+	return require("lib.custom_gui.command_books.common_settings")
+end
+
+
+function DroneSettingsProfile:setUpDroneSettings(set_values)
+	if not self.drone_metadata then
+		self.drone_metadata = DroneSettingsProfile:getAllDroneMetadata()
+	end
+	for drone_id,metadata in pairs(self.drone_metadata.metadata) do
+		
+		local drone_settings =metadata.get_settings()
+		local default_settings =self:getDefaultSettings()
+		
+		self:addDroneSpecificSettings(drone_id,default_settings)
+		self:addDroneSpecificSettings(drone_id,drone_settings)
+		self:setProfile(drone_id,set_values)
+		
+	end
+end
+
+
+
+
+	
+
+
+
+function DroneSettingsProfile:init(set_values)
 	DroneSettingsProfile.superClass.init(self)
 	self.drone_id = "ALL"
+	self.drone_metadata = DroneSettingsProfile:getAllDroneMetadata()
+
+	
+
 	self.settings_profile = {
-		["TURRET"] = {
-			hunt_mode = false,		
-			dynamic_positioning_mode = false,		
-			auto_aim = false,		
-			run_mode = false,		
-			player_mounting_ship = false,
-			aim_target_mode = "PLAYER",		
-			orbit_target_mode = "PLAYER",		
-			master_player = "Yordi111",		
-			master_ship = "6",		
-			use_external_aim = false,		
-			use_external_orbit = false,
-			bullet_range = 100,
-			range_finding_mode = 3,
-		},
-		["KITE"] = {
-			dynamic_positioning_mode = false,
-			run_mode = false,		
-			player_mounting_ship = false,		
-			orbit_target_mode = "PLAYER",		
-			master_player = "USERNAME_HERE",		
-			master_ship = "82",		
-			rope_length = 20,
-		},
-		["RAY"] = {
-			dynamic_positioning_mode = false,		
-			run_mode = false,		
-			player_mounting_ship = false,
-			orbit_target_mode = "PLAYER",		
-			master_player = "USERNAME_HERE",		
-			master_ship = "82",		
-		},
-		["SEGMENT"] = {
-			dynamic_positioning_mode = false,
-			run_mode = false,		
-			player_mounting_ship = false,		
-			orbit_target_mode = "SHIP",		
-			master_player = "PHO",		
-			master_ship = "16",
-			
-			segment_delay = 50,			
-			gap_length = 5,
-			group_id = "group1",
-			segment_number = 1,
-		},
-		["TRACER"] = {
-			dynamic_positioning_mode = false,
-			run_mode = false,		
-			player_mounting_ship = false,		
-			orbit_target_mode = "PLAYER",		
-			master_player = "PHO",		
-			master_ship = "3",
-			
-			walk = false,
-		},
-		["DEFAULT"] = {
+
+		["ERROR"] = {
 			default_label = "DEFAULT LABEL",
 			is_default = true
 		},
 	}
+	self:getAllDroneMetadata()
+	self:setUpDroneSettings(set_values)
+
+
 end
 
 function DroneSettingsProfile:setProfile(drone_type,settings)
 	if (self.settings_profile[drone_type]) then
 		for var_name,value in pairs(settings) do
-			if (self.settings_profile[drone_type][var_name] ~= nil) then
+
+			
+			if (value ~= nil) then
 				self.settings_profile[drone_type][var_name] = value
 			end
+			
 		end
 	end
 end
@@ -101,11 +139,14 @@ function DroneSettingsProfile:getDroneTypeProfile(drone_type)
 	if (self.settings_profile[drone_type]) then
 		return self.settings_profile[drone_type]
 	end
-	return self.settings_profile["DEFAULT"]
+	return self.settings_profile["ERROR"]
 end
 
 function DroneSettingsProfile:addDroneSpecificSettings(drone_type,settings)
 	for key,value in pairs(settings) do
+		if not self.settings_profile[drone_type]then
+			self.settings_profile[drone_type] ={}
+		end
 		self.settings_profile[drone_type][key] = value
 	end
 end

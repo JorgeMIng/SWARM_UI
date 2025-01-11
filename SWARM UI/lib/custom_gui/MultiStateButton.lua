@@ -1,5 +1,6 @@
-local list_manager = require ("lib.list_manager")
 
+
+local list_manager = require ("lib.list_manager")
 local Root = require 'lib.gui.Root'
 local LinearContainer = require 'lib.gui.LinearContainer'
 local Label = require 'lib.gui.Label'

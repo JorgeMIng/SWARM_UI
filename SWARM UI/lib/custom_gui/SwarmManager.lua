@@ -60,6 +60,7 @@ function SwarmManager:init(root,init_arguments)
 	self:addChild(self.droneSelect,false,true,Constants.LinearAlign.START)
 	
 	init_arguments.drone_id_list = self.drone_id_list
+	init_arguments.drone_id_whitelist = self.drone_id_whitelist
 	self.commandManager = CommandManager(root,init_arguments)
 	
 	self:addChild(self.commandManager,true,true,Constants.LinearAlign.START)
@@ -83,16 +84,28 @@ function SwarmManager:init(root,init_arguments)
 			self.commandManager:switchToSwarmProfile(true)
 			self.commandManager:enableDroneTypeButton(true)
 			self.commandManager:enableSetSwarmButton(true)
+			self.commandManager:enableWiFiButton(true)
 			
 			self.commandManager:refreshProtocolBookBox()
 			self.commandManager:refreshDroneTypeButton()
 		else
 			
 			self.commandManager:updateCurrentDroneId(self.selected_drone_id)
+			self.commandManager:switchToSwarmProfile(false)
 			self.commandManager:enableDroneTypeButton(false)
+			self.commandManager:enableWiFiButton(false)
 			self.commandManager:enableSetSwarmButton(false)
 			
-			self.commandManager:setDroneType("DEFAULT")
+			
+			-- TODO have cooldown of not receiving info of drone and then changed to not found (stop flickering)
+			--self.commandManager:setDroneType("DEFAULT")
+			--if self.commandManager:getDroneType() then
+				--self.commandManager:setDroneType(self.commandManager:getDroneType())
+			--else end
+			self.commandManager:setDroneType("OFFLINE")
+			
+			
+			
 			self.commandManager:clearProtocolBookBox()
 			self.commandManager:askCurrentDroneForInfo(self.selected_drone_id)
 			
@@ -122,6 +135,10 @@ function SwarmManager:updateDroneList(list)
 	for i,drone in ipairs(list) do
 		self:addToDroneList(drone)
 	end
+end
+
+function SwarmManager:reply_ping(args)
+	self.commandManager:reply_ping(args)
 end
 
 function SwarmManager:addToDroneList(drone)

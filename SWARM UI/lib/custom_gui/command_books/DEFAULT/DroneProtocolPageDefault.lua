@@ -5,7 +5,13 @@ local Constants = require 'lib.gui.Constants'
 local LinearContainer = require 'lib.gui.LinearContainer'
 local DroneSettingsProfile = require "lib.custom_gui.DroneSettingsProfile"
 local BiStateButton = require "lib.custom_gui.BiStateButton"
-local DroneProtocolPage = require "lib.custom_gui.command_books.DEFAULT.DroneProtocolPage"
+local expect = require "cc.expect"
+
+
+local common_variables = require "lib.custom_gui.command_books.common_variables"
+
+local DroneProtocolPage = require("lib.custom_gui.command_books."..common_variables.default_page_name..".DroneProtocolPage")
+
 local expect = require "cc.expect"
 
 

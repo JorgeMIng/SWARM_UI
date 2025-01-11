@@ -22,7 +22,9 @@ function DroneProtocolPage:init(root,init_config)
 	
 	self.com_channels = init_config.com_channels
 	self.drone_type = init_config.drone_type
-	self.drone_profile = DroneSettingsProfile()
+	self.drone_profile = DroneSettingsProfile(init_config.settings)
+	self.manager=init_config.manager
+	
 end
 
 
@@ -68,10 +70,27 @@ function DroneProtocolPage:initElements(elements)
 	end
 end
 
+--function DroneProtocolPage:transmitToCurrentDrone(cmd,args)
+--	modem.transmit(self.com_channels.REMOTE_TO_DRONE_CHANNEL, self.com_channels.DRONE_TO_REMOTE_CHANNEL, 
+--	{drone_id=self:getDroneId(),msg={cmd=cmd,drone_type=self.drone_type,args=args}})
+	
+--end
+
+
 function DroneProtocolPage:transmitToCurrentDrone(cmd,args)
-	modem.transmit(self.com_channels.REMOTE_TO_DRONE_CHANNEL, self.com_channels.DRONE_TO_REMOTE_CHANNEL, 
-	{drone_id=self:getDroneId(),msg={cmd=cmd,drone_type=self.drone_type,args=args}})
+	self.manager:transmitToDroneType(self:getDroneId(),cmd,args)	
 end
+
+
+function DroneProtocolPage:transmitToCorrectDrone(cmd,args)
+	if self:getDroneId()=="ALL"then
+		self.manager:commandSwarm(cmd,args)
+	else
+		self.manager:transmitToDroneType(self:getDroneId(),cmd,args)
+	end
+end
+
+
 
 function DroneProtocolPage:getSettings(drone_type)
 	return self.drone_profile.settings_profile[drone_type]
@@ -92,6 +111,7 @@ function DroneProtocolPage:updateDroneProfile(drone_profile)
 end
 
 function DroneProtocolPage:update(drone_profile)
+	
 	self:updateDroneProfile(drone_profile)
 	self:refresh()
 end

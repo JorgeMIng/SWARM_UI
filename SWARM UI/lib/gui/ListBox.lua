@@ -27,6 +27,15 @@ function ListBox:init(root,cols,rows,items)
     self.selBgColor = colors.cyan
     self.selTextColor = colors.white
     self.selected = 0
+    self.multiple=false
+    self.scrolls={}
+end
+
+function ListBox:addOtherScroll(scroll)
+    if not self.multiple then
+        self.multiple=true
+    end
+    table.insert(self.scrolls,scroll)
 end
 
 function ListBox:getPreferredSize()
@@ -66,6 +75,39 @@ end
 -- Override this method to receive selection events.
 function ListBox:onSelectionChanged() end
 
+function ListBox:responseOtherScroll(func,param)
+    if self.multiple then
+        for _,scroll in pairs(self.scrolls) do
+            scroll[func](scroll,param)
+        end
+    end
+end
+
+function ListBox:responseOtherScroll2(func,x,y)
+    if self.multiple then
+        for _,scroll in pairs(self.scrolls) do
+            scroll[func](scroll,x,y)
+        end
+    end
+end
+
+
+
+function ListBox:onMouseScroll(dir, x, y)
+    local scroll = self.scroll
+    local scrollSpeed = self.scrollSpeed
+    self:setScroll(scroll+dir*scrollSpeed)
+    
+    if self.multiple then
+        for _,scroll_child in pairs(self.scrolls) do
+            scroll_child:setScroll(scroll+dir*scrollSpeed)
+        end
+    end
+    return true
+end
+
+
+
 function ListBox:setSelected(n)
     expect(1, n, "number")
     n = math.min(math.max(n,1),#self.items)
@@ -77,6 +119,8 @@ function ListBox:setSelected(n)
             self:setScroll(self.selected - self.size[2])
         end
         self:onSelectionChanged()
+        self:responseOtherScroll("setSelected",n)
+        
     end
 end
 
@@ -89,6 +133,11 @@ function ListBox:mouseSelect(x,y)
     expect(2, y, "number")
     self:setSelected(y-self.pos[2]+self.scroll+1)
     self.dirty = true
+    if self.multiple then
+        for _,scroll_child in pairs(self.scrolls) do
+            scroll_child.dirty=true
+        end
+    end 
 end
 
 function ListBox:onMouseDown(button, x, y)

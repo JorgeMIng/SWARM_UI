@@ -50,20 +50,21 @@ function remoteUI:initList(lst)
 	lst.selected = 1
 end
 
-function remoteUI:init(settings,drone_list,com_channels)
+function remoteUI:init(settings,drone_list,com_channels,config)
 	remoteUI.superClass.init(self)
 	self.drone_id_list = {"ALL"}
 	self.drone_id_whitelist = {}
 	self:updateDroneList(drone_list)
 	
 	self.com_channels = com_channels
-	
-	
+	self.secret_id=config.secret_id or 42
+	config.secret_id=self.secret_id
 	local arguments = {
 		com_channels = com_channels,
 		drone_id_list = drone_list,
 		selected_drone_id = "ALL",--"421"
 		settings = settings,
+		config=config
 	}
 	self.swarmManager = SwarmManager(self,arguments)
 	
@@ -72,6 +73,7 @@ function remoteUI:init(settings,drone_list,com_channels)
 	self.backgroundColor = colors.black
 	self:onLayout()
 end
+
 
 function remoteUI:getSelectedDroneID()
 	return self.swarmManager.selected_drone_id
@@ -114,20 +116,24 @@ function remoteUI:commandSwarm(cmd,args,delay_interval)
 	self.swarmManager.commandManager:commandSwarm(cmd,args,delay_interval)
 end
 
-function remoteUI:executePageSpecificAction(book_n,page_n,protocol,args)
+function remoteUI:executePageSpecificAction(drone_type,page_n,protocol,args)
 	local bundled_args = {protocol=protocol,args=args}
-	local ret_val = self.swarmManager.commandManager.drone_protocol_books[book_n].protocol_pages[page_n]:pageSpecificAction(bundled_args)
+
+	local ret_val = self.swarmManager.commandManager.drone_protocol_books[drone_type].protocol_pages[page_n]:pageSpecificAction(bundled_args)
 	if (ret_val) then
 		return ret_val
 	end
 end
 
 function remoteUI:droneToModemActions(msg)
+	
 	case =
 	{
 		["drone_settings_update"] = function (args)
 			--self:updatePages(args.settings,false)
+			
 			self.swarmManager:updateCurrentDroneSettingsProfile(args.partial_profile)
+			self:onRedraw()
 			
 		end,
 		["drone_position_update"] = function (args)
@@ -135,6 +141,9 @@ function remoteUI:droneToModemActions(msg)
 		end,
 		["register_drone"] = function (args)
 			--self:addToDroneList(args.drone_ID)
+		end,
+		["reply_ping"] = function(msg)
+			self.swarmManager:reply_ping(msg.args)
 		end,
 		default = function ( )
 			--print("default case executed")   
@@ -160,10 +169,10 @@ function remoteUI:scrollActionVertical(delta)
 	local selected_drone_type = self:getSelectedDroneType()
 	
 	if ( selected_drone_type == "TURRET") then
-		local range_mode = self:executePageSpecificAction(1,2,"get_range_finding_mode")
+		local range_mode = self:executePageSpecificAction(selected_drone_type,2,"get_range_finding_mode")
 		if (range_mode==1) then
-			self:executePageSpecificAction(1,2,"override_bullet_range",{delta=delta})
-			local override_range = self:executePageSpecificAction(1,2,"get_override_bullet_range")
+			self:executePageSpecificAction(selected_drone_type,2,"override_bullet_range",{delta=delta})
+			local override_range = self:executePageSpecificAction(selected_drone_type,2,"get_override_bullet_range")
 			if (self:getSelectedDroneID() ~= "ALL") then
 				self:transmitToDroneType(self:getSelectedDroneID(),"override_bullet_range",override_range)
 			else
@@ -171,8 +180,8 @@ function remoteUI:scrollActionVertical(delta)
 			end
 		end
 	elseif (selected_drone_type == "KITE") then
-		self:executePageSpecificAction(2,1,"override_rope_length",{delta=delta})
-		local override_range = self:executePageSpecificAction(2,1,"get_override_rope_length")
+		self:executePageSpecificAction(selected_drone_type,1,"override_rope_length",{delta=delta})
+		local override_range = self:executePageSpecificAction(selected_drone_type,1,"get_override_rope_length")
 		if (self:getSelectedDroneID() ~= "ALL") then
 			self:transmitToDroneType(self:getSelectedDroneID(),"override_rope_length",override_range)
 		else
@@ -325,15 +334,15 @@ function remoteUI:mainLoop()
         evt = {os.pullEventRaw()}
 		
         self:onEvent(evt)
-		debugProbe(evt[1],10,10000)
+		--debugProbe(evt[1],10,10000)
         if evt[1] == "terminate" then
             break
 		elseif evt[1] =="modem_message" then
-			debugProbe(evt[5],10,10000)
+			--debugProbe(evt[5],10,10000)
 			
 			if (evt[5].drone_ID) then
 				
-				if (self.drone_id_whitelist[tostring(evt[5].drone_ID)]) then
+				if (self.swarmManager.drone_id_whitelist[tostring(evt[5].drone_ID)]) or (evt[5].reply_id==self.secret_id) then
 					--debugProbe(evt[5],10,10000)
 					self:droneToModemActions(evt[5])
 				end
